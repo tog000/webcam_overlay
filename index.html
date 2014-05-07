@@ -19,11 +19,20 @@
 		<![endif]-->
 
 		<!-- Add your site or application content here -->
-		<div id="camera"></div>
+		<div id="camera-wrapper">
+			<div id="overlay">
+				<img src=""/>
+			</div>
+			<div id="camera"></div>
+		</div>
+		<div class="templates">
+			<img class="template active" id="template1" src="media/test.svg"/>
+			<img class="template" id="template1" src="media/test.png"/>
+		</div>
 		<div id="snapshot-btn" class="button">SNAPSHOT</div>
 		<div id="stop-btn" class="button">STOP</div>
 
-		<img class="template" id="template1" src="media/test.svg"/>
+
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="./js/say-cheese.js"></script>
 		<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
@@ -35,8 +44,11 @@
 				initialize();
 			});
 
+			var currentTemplate="";
+			var sayCheese;
+
 			function initialize(){
-				var sayCheese = new SayCheese('#camera', { snapshots: true });
+				sayCheese = new SayCheese('#camera', { snapshots: true });
 				
 				sayCheese.on('start', function() {
  					//this.takeSnapshot();
@@ -48,7 +60,7 @@
 	 					var ctx = snapshot.getContext('2d');
 
 						var img = new Image();
-	 					img.src="./media/test.svg";
+	 					img.src=currentTemplate//"./media/test.svg";
 	 					
 	 					ctx.drawImage(img,0,0);
 
@@ -76,10 +88,20 @@
 				jQuery("#stop-btn").on("click",function(){
 					sayCheese.stop();
 				})
+
+				jQuery(".template").on("click",function(e){
+					jQuery(".template").removeClass("active")
+					var el = jQuery(this)
+					currentTemplate = el.attr("src");
+					el.addClass("active");
+					updateOverlay();
+					e.preventDefault();
+				})
 			}
 
-			function watermarkSnapshot(context){
-
+			function updateOverlay(){
+				var overlayImg = jQuery("#overlay img");
+				overlayImg.attr("src",currentTemplate);
 			}
 
 			(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=

@@ -1,6 +1,11 @@
-#camera{border:2px solid gray;max-width:160px;max-height:120px;margin:0 auto;display:none;}
+#camera-wrapper{border:2px solid gray;width:320px;height:240px;margin:0 auto;position:relative;}
+#overlay{position:absolute;}
+#overlay img, #camera video{max-width:100%;max-height:100%;}
 
-.template{display:none;}
+.templates{border:2px solid gray;height:70px;margin:10px;max-width:200px;margin:10px auto;}
+.template{float:left;max-height:50px;max-width:50px;width:50px;border:1px solid #aaa;padding:5px;margin:5px;cursor:pointer;}
+.template:hover{border:1px solid #666;background-color:#eee;}
+.template.active{border:1px solid red;}
 
-.button{background-color:gray;width:100px;font-size:10px;padding:10px;color:white;text-align:center;cursor:pointer;margin-bottom:1px;}
+.button{margin:0 auto;background-color:gray;width:100px;font-size:10px;padding:10px;color:white;text-align:center;cursor:pointer;margin-bottom:1px;}
 .button:hover{background-color:#999;}
