@@ -6,7 +6,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<title>Test webcam overlay</title>
+		<title>Test webcam motion detection</title>
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="css/style.css">
@@ -20,21 +20,13 @@
 
 		<!-- Add your site or application content here -->
 		<div id="camera-wrapper">
-			<div id="overlay">
-				<img src=""/>
-			</div>
 			<div id="camera"></div>
 		</div>
-		<div class="templates">
-			<img class="template active" id="template1" src="media/test.svg"/>
-			<img class="template" id="template1" src="media/test.png"/>
-		</div>
-		<div id="snapshot-btn" class="button">SNAPSHOT</div>
-		<div id="stop-btn" class="button">STOP</div>
-
+		<div id="motion" class="motion">MOTION DETECTED</div>
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="./js/say-cheese.js"></script>
+		<script src="./js/pixastic.custom.js"></script>
 		<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
 
 		<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
@@ -51,32 +43,55 @@
 				sayCheese = new SayCheese('#camera', { snapshots: true });
 				
 				sayCheese.on('start', function() {
- 					//this.takeSnapshot();
- 					//sayCheese.stop();
+					setInterval(function(){
+						sayCheese.takeSnapshot();
+					},500)
 				});
 
+				var prevHist = new Array();
+				var hist = [];
+				var difference = 0;
+				var motionDetected = jQuery("#motion");
+				var cooldown = 0;
+
 				sayCheese.on('snapshot', function(snapshot) {
- 					try{
-	 					var ctx = snapshot.getContext('2d');
+					try{
+						//var ctx = snapshot.getContext('2d');
 
-						var img = new Image();
-	 					img.src=currentTemplate//"./media/test.svg";
-	 					
-	 					ctx.drawImage(img,0,0);
+						var image = jQuery(snapshot);
+						image.css({'width':200,'height':'auto'});
+						//jQuery('body').append(image);
 
-	 					snapshot = jQuery(snapshot);
-	 					snapshot.css('width',"160")
-	 					snapshot.css('height',"120")
+						Pixastic.process(snapshot, "blurfast", {amount:1});
+						Pixastic.process(snapshot, "histogram", {
+							average:true,paint:true,color:"rgb(255,0,0)",returnValue:hist
+						});
 
+						hist = hist.values;
+						if(prevHist.length > 0){
+							difference = 0;
+							for(i=0;i<prevHist.length;i++){
+								difference += Math.pow(prevHist[i] - hist[i],2);
+							}
 
-	 					jQuery('body').append(snapshot);
+							if(Math.log(difference) > 15){
+								motionDetected.fadeIn();
+								cooldown = 5;
+							}else if(cooldown > 0){
+								cooldown -= 1;
+							}else{
+								motionDetected.fadeOut();
+							}
 
+						}
+					
+						prevHist = hist;
 
-	 				}catch(err){
-	 					sayCheese.stop();
-	 					throw err;
-	 				}
- 					
+					}catch(err){
+						sayCheese.stop();
+						throw err;
+					}
+					
 				});
 
 				sayCheese.start();
@@ -89,19 +104,6 @@
 					sayCheese.stop();
 				})
 
-				jQuery(".template").on("click",function(e){
-					jQuery(".template").removeClass("active")
-					var el = jQuery(this)
-					currentTemplate = el.attr("src");
-					el.addClass("active");
-					updateOverlay();
-					e.preventDefault();
-				})
-			}
-
-			function updateOverlay(){
-				var overlayImg = jQuery("#overlay img");
-				overlayImg.attr("src",currentTemplate);
 			}
 
 			(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
