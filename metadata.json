@@ -1,4 +1,5 @@
 {
 "title":"Webcam motion",
-"description":"HTML5 motion detection using webcam"
+"description":"HTML5 motion detection using webcam",
+"repository":"http://github.com/tog000/webcam_overlay.git"
 }
